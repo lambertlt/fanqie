@@ -19,7 +19,7 @@
                     // document.getElementById('icon').target = "_blank"
                     // href = '../images/icon.png'; //需要修改的图片路径
                     setTimeout(function() {
-                            document.title = '番茄时光,等你来用';
+                            document.title = '番茄时光';
                         }, 2000) //计时器
                 }
             })
@@ -43,7 +43,7 @@
         #page {
             width: 100vw;
             height: 100vh;
-            background-image: linear-gradient(49deg, #0b3f27, #1f6439, #348b4c, #49b55f);
+            background-image: linear-gradient(25deg, #4ca8f9, #9db6e6, #d1c4d3, #fcd3bf);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -62,7 +62,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            font-size: 1.6rem;
+            font-size: 2rem;
             position: relative;
         }
         
@@ -93,7 +93,7 @@
                 <div>{{second}}</div>
             </div>
             {{content}}
-            <div class="over">
+            <div class="over" @click.stop="remove">
                 ╳
             </div>
         </button>
@@ -110,6 +110,14 @@
                 content: "开始"
             },
             methods: {
+                remove() {
+                    this.isClick = 0
+                    this.minute = `00`
+                    this.hour = `00`
+                    this.second = `00`
+                    this.content = '开始'
+                    clearInterval(t)
+                },
                 button() {
                     let _this = this
                     this.isClick = !this.isClick
