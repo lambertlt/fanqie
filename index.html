@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>番茄时光</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
         (function() {
             document.addEventListener('visibilitychange', function() { //浏览器切换事件
@@ -80,16 +81,47 @@
         }
         
         .music {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             padding: 0 0.6rem 0.6rem 0.6rem;
+            width: 100%;
+        }
+        
+        .musicL {
+            margin-right: 20px;
+        }
+        
+        .musicR {
+            margin-left: 20px;
+        }
+        /*无限旋转动画*/
+        
+        @keyframes changDeg {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .rotate {
+            animation: changDeg 2s linear 0.2s infinite;
         }
     </style>
 </head>
 
 <body>
     <div id="pages">
+        <audio id="audio" :src="musicList[music]">Your browser does not support the audio element.</audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
         <button @click=button>
-            <div class="music">♬</div>
+            <div class="music">
+                <div class="musicL" @click.stop="music--">-</div>
+                <div class="musicC" :class={rotate:isMusic} @click.stop="isPlay">♬</div>
+                <div class="musicR" @click.stop="music++">+</div>
+            </div>
             <div class="time">
                 <!-- <div>{{hour}}:</div> -->
                 <div>{{minute}}:</div>
@@ -110,23 +142,56 @@
                 minute: `00`,
                 second: `00`,
                 isClick: 0,
+                isMusic: 0,
+                music: 0,
                 content: "开始",
                 clientWidth: document.body.clientWidth,
                 clientHeight: document.body.clientHeight,
                 angle: 0,
+                musicList: []
             },
             created() {},
             mounted() {
-                // this.canvas()
+                this.getMusicList()
             },
-            computed: {
-                // 计算属性的 getter
-                // reversedMessage: function() {
-                //     // `this` 指向 vm 实例
-                //     return this.message.split('').reverse().join('')
-                // }
-            },
+            computed: {},
             methods: {
+                // https: //bird.ioliu.cn/netease/song?id=222222
+                // https://music.163.com/#/playlist?id=4942238911
+                // https://bird.ioliu.cn/netease/playlist?id=4942238911
+                musicL() {
+                    let audio = document.querySelector("#audio")
+
+                },
+                musicR() {},
+                isPlay() {
+                    let audio = document.querySelector("#audio")
+                    this.isMusic = !this.isMusic
+                    if (this.isMusic)
+                        audio.play()
+                    else
+                        audio.pause()
+                },
+                getMusicList() {
+                    let _this = this
+                    axios
+                        .get('https://bird.ioliu.cn/netease/playlist?id=4942238911')
+                        .then(response => {
+                            let list = []
+                            response.data.playlist['trackIds'].filter(e => {
+                                axios.get('https://bird.ioliu.cn/netease/song?id=' + e.id).then(
+                                    result => {
+                                        list.push(result.data.data.mp3.url)
+                                    }).catch(error => {
+                                    console.log(error)
+                                })
+                            })
+                            _this.musicList = list
+                        })
+                        .catch(function(error) { // 请求失败处理
+                            console.log(error);
+                        })
+                },
                 clearCanvas() {
                     var c = document.getElementById("can1");
                     var cxt = c.getContext("2d");
@@ -140,16 +205,20 @@
                     ctx.translate(_this.clientWidth / 2, _this.clientHeight / 2)
                     ctx.rotate(-90 * Math.PI / 180);
                     ctx.moveTo(0, 0)
-                    ctx.arc(0, 0, _this.clientWidth >= _this.clientHeight ? _this.clientWidth : _this
+                    ctx.arc(0, 0, _this.clientWidth >= _this.clientHeight ? _this.clientWidth :
+                        _this
                         .clientHeight, 0, _this.angle * Math.PI / 180)
                     ctx.fill() // 填充绘制路径 默认黑色
                         // ctx.stroke(); // 绘制已定义路径
                 },
                 remove() {
                     this.isClick = 0
-                    this.minute = `00`
-                    this.hour = `00`
-                    this.second = `00`
+                    this.minute = `
+                                                00 `
+                    this.hour = `
+                                                00 `
+                    this.second = `
+                                                00 `
                     this.content = '开始'
                     this.angle = 0
                     clearInterval(t)
@@ -184,6 +253,8 @@
         })
     </script>
 </body>
+
+</html>
 
 </html>
 
