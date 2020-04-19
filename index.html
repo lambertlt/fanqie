@@ -26,10 +26,6 @@
         }())
     </script>
     <style>
-        html {
-            font-size: 10px;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -40,17 +36,22 @@
             color: black;
         }
         
-        #page {
-            width: 100vw;
+        #pages {
+            width: 100%;
             height: 100vh;
-            background-image: linear-gradient(25deg, #4ca8f9, #9db6e6, #d1c4d3, #fcd3bf);
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            position: relative;
+            background-image: linear-gradient(25deg, #4ca8f9, #9db6e6, #d1c4d3, #fcd3bf);
         }
         
-        #page button {
+        #can1 {
+            position: absolute;
+            z-index: 10;
+        }
+        
+        #pages button {
             width: calc(100vw / 2.5);
             height: calc(100vw / 2.5);
             border-radius: 50%;
@@ -63,7 +64,8 @@
             align-items: center;
             flex-direction: column;
             font-size: 2rem;
-            position: relative;
+            position: absolute;
+            z-index: 100;
         }
         
         .time {
@@ -84,11 +86,12 @@
 </head>
 
 <body>
-    <div id="page">
+    <div id="pages">
+        <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
         <button @click=button>
             <div class="music">♬</div>
             <div class="time">
-                <div>{{hour}}:</div>
+                <!-- <div>{{hour}}:</div> -->
                 <div>{{minute}}:</div>
                 <div>{{second}}</div>
             </div>
@@ -98,25 +101,59 @@
             </div>
         </button>
     </div>
-    <script>
+    <script type="text/javascript">
         var t
         var vm = new Vue({
-            el: '#page',
+            el: '#pages',
             data: {
                 hour: `00`,
                 minute: `00`,
                 second: `00`,
                 isClick: 0,
-                content: "开始"
+                content: "开始",
+                clientWidth: document.body.clientWidth,
+                clientHeight: document.body.clientHeight,
+                angle: 0,
+            },
+            created() {},
+            mounted() {
+                // this.canvas()
+            },
+            computed: {
+                // 计算属性的 getter
+                // reversedMessage: function() {
+                //     // `this` 指向 vm 实例
+                //     return this.message.split('').reverse().join('')
+                // }
             },
             methods: {
+                clearCanvas() {
+                    var c = document.getElementById("can1");
+                    var cxt = c.getContext("2d");
+                    c.height = this.clientHeight;
+                },
+                canvas() {
+                    this.clearCanvas()
+                    let can1 = document.getElementById("can1"),
+                        ctx = can1.getContext("2d"),
+                        _this = this
+                    ctx.translate(_this.clientWidth / 2, _this.clientHeight / 2)
+                    ctx.rotate(-90 * Math.PI / 180);
+                    ctx.moveTo(0, 0)
+                    ctx.arc(0, 0, _this.clientWidth >= _this.clientHeight ? _this.clientWidth : _this
+                        .clientHeight, 0, _this.angle * Math.PI / 180)
+                    ctx.fill() // 填充绘制路径 默认黑色
+                        // ctx.stroke(); // 绘制已定义路径
+                },
                 remove() {
                     this.isClick = 0
                     this.minute = `00`
                     this.hour = `00`
                     this.second = `00`
                     this.content = '开始'
+                    this.angle = 0
                     clearInterval(t)
+                    this.clearCanvas()
                 },
                 button() {
                     let _this = this
@@ -125,14 +162,17 @@
                         _this.content = '暂停'
                         t = setInterval(function() {
                             _this.second++;
+                            _this.angle = parseFloat((_this.angle + 0.1).toFixed(1));
+                            _this.canvas()
                             if (_this.second >= 60) {
                                 _this.minute++;
                                 _this.second = 0;
                             } else if (_this.minute >= 60) {
                                 _this.hour++;
                                 _this.minute = 0;
-                            } else if (_this.hour >= 24) {
-                                alert("已经超过一天了，要适当休息鸭")
+                            } else if (_this.hour == 1) {
+                                _this.remove()
+                                alert("已经超过一小时了，要适当休息鸭")
                             }
                         }, 1000)
                     } else if (!_this.isClick) {
@@ -144,5 +184,7 @@
         })
     </script>
 </body>
+
+</html>
 
 </html>
