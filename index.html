@@ -237,12 +237,9 @@
                 },
                 remove() {
                     this.isClick = 0
-                    this.minute = `
-                                                00 `
-                    this.hour = `
-                                                00 `
-                    this.second = `
-                                                00 `
+                    this.minute = `00`
+                    this.hour = `00`
+                    this.second = `00`
                     this.content = '开始'
                     this.angle = 0
                     clearInterval(t)
@@ -269,7 +266,10 @@
                                 _this.minute = 0;
                             } else if (_this.hour == 1) {
                                 _this.remove()
-                                alert("已经超过一小时了，要适当休息鸭")
+                                alert("已经一小时了，要适当休息鸭")
+                            } else if (_this.minute == 25) {
+                                _this.remove()
+                                alert("时间到了，要适当休息鸭")
                             }
                         }, 1000)
                     } else if (!_this.isClick) {
