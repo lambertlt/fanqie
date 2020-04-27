@@ -58,13 +58,13 @@
         }
 
         #pages .button {
-            width: calc(100vw / 2.5);
-            height: calc(100vw / 2.5);
+            width: calc(100vw / 8);
+            height: calc(100vw / 8);
             border-radius: 50%;
             box-shadow: 0 0 10px #000000;
             border: none;
-            background-image: linear-gradient(25deg, #7551d3, #867bd7, #92a3db, #9acbde);
-            color: white;
+            background-color: white;
+            color: black;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -74,6 +74,16 @@
             z-index: 100;
         }
 
+        .buttonBox {
+            width: calc(100vw / 2.5);
+            height: calc(100vw / 2.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+
         .time {
             color: black;
             display: flex;
@@ -81,24 +91,26 @@
 
         .over {
             position: absolute;
-            bottom: .6rem;
+            bottom: -3.6rem;
             padding: 0 1rem 0 1rem;
+            font-size: 2rem;
         }
 
         .music {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             align-items: center;
-            padding: 0 0.6rem 0.6rem 0.6rem;
             width: 100%;
         }
 
         .musicL {
-            margin-right: 20px;
+            margin-right: 1rem;
+            padding: .4rem;
         }
 
         .musicR {
-            margin-left: 20px;
+            margin-left: 1rem;
+            padding: .4rem;
         }
 
         /*无限旋转动画*/
@@ -114,7 +126,7 @@
         }
 
         .rotate {
-            animation: changDeg 2s linear 0.2s infinite;
+            animation: changDeg 6s linear 0.2s infinite;
         }
 
         .user {
@@ -146,6 +158,27 @@
             background-color: rgb(253, 194, 0);
             text-align: center;
         }
+
+        .musicImg {
+            width: calc(100vw / 2.5);
+            height: calc(100vw / 2.5);
+            display: block;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 99;
+        }
+
+        .imgBox {
+            position: relative;
+            margin-top: .5rem;
+            width: 10rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            font-size: 1.2rem;
+            overflow: hidden;
+        }
     </style>
 </head>
 
@@ -153,27 +186,32 @@
     <div id="pages">
         <div class="user">
             <button class="times" @click="time==60?time=25:time=60">番茄时间:<br>{{time}}min</button>
-            <button class="userMusicList" @click="getuserMusicList">修改歌单只支持网易云歌单</button>
+            <button class="userMusicList"
+                @click="userSelectList==0?userSelectList++:userSelectList--;getMusicList();music=0;isMusic=1;">{{userSelectList?"动感":"白噪音"}}</button>
+            <div class="imgBox" @click.stop="isPlay">{{musicList[music].name}}</div>
         </div>
         <!-- musicList[music] https://www.runoob.com/try/demo_source/horse.mp3-->
-        <audio id="audio" :src="musicList[music]"></audio>
+        <audio v-if="musicList[music].mp3" id="audio" :src="musicList[music].mp3"></audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
-        <button class="button" @click="button">
-            <div class="music">
-                <div class="musicL" @click.stop="music--">-</div>
-                <div class="musicC" :class={rotate:isMusic} @click.stop="isPlay">♬</div>
-                <div class="musicR" @click.stop="music++">+</div>
+        <div class="buttonBox" @click.stop="button">
+            <img class="musicImg" :class={rotate:isMusic} :src="musicList[music].picUrl" alt="" />
+            <div class="button">
+                <div class="music">
+                    <div class="musicL" @click.stop="music--">-</div>
+                    <div class="musicC" :class={rotate:isMusic} @click.stop="isPlay">♬</div>
+                    <div class="musicR" @click.stop="music++">+</div>
+                </div>
+                <div class="time">
+                    <!-- <div>{{hour}}:</div> -->
+                    <div>{{minute}}:</div>
+                    <div>{{second}}</div>
+                </div>
+                {{content}}
             </div>
-            <div class="time">
-                <!-- <div>{{hour}}:</div> -->
-                <div>{{minute}}:</div>
-                <div>{{second}}</div>
-            </div>
-            {{content}}
             <div class="over" @click.stop="remove">
                 ╳
             </div>
-        </button>
+        </div>
     </div>
     <script type="text/javascript">
         var t
@@ -192,7 +230,8 @@
                 angle: 0,
                 musicList: [],
                 time: 25,
-                userMusicList: '4942238911'
+                userMusicList: ['4942238911', '4945892612'],
+                userSelectList: 0
             },
             created() {
                 this.getMusicList()
@@ -203,17 +242,6 @@
                 // https: //bird.ioliu.cn/netease/song?id=222222
                 // https://music.163.com/#/playlist?id=4942238911
                 // https://bird.ioliu.cn/netease/playlist?id=4942238911
-                getuserMusicList() {
-                    this.getMusicList()
-                    this.userMusicList = prompt("请输入预设歌单:",
-                        "");
-                    if (this.userMusicList != null) {
-                        alert("设置成功");
-                    }
-                    this.userMusicList = this.userMusicList.match(/id=[0-9]+/)[0].replace("id=", "");
-                    // http://music.163.com/playlist?id=4945892612&userid=532094284
-                    this.getMusicList()
-                },
                 isPlay() {
                     let audio = document.querySelector("#audio"),
                         _this = this
@@ -232,13 +260,19 @@
                 getMusicList() {
                     let _this = this
                     axios
-                        .get('https://bird.ioliu.cn/netease/playlist?id=' + _this.userMusicList)
+                        .get('https://bird.ioliu.cn/netease/playlist?id=' + _this.userMusicList[_this
+                            .userSelectList])
                         .then(response => {
                             let list = []
                             response.data.playlist['trackIds'].filter(e => {
                                 axios.get('https://bird.ioliu.cn/netease/song?id=' + e.id).then(
                                     result => {
-                                        list.push(result.data.data.mp3.url)
+                                        let item = {
+                                            name: result.data.data.name,
+                                            picUrl: result.data.data.al.picUrl,
+                                            mp3: result.data.data.mp3.url
+                                        }
+                                        list.push(item)
                                     }).catch(error => {
                                     console.log(error)
                                 })
@@ -278,7 +312,7 @@
                     this.clearCanvas()
                     document.querySelector("#audio").pause()
                     document.querySelector("#audio").currentTime = 0
-                    this.isMusic = !this.isMusic
+                    this.isMusic = 0
                 },
                 button() {
                     let _this = this
