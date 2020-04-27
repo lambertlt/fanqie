@@ -26,6 +26,7 @@
             })
         }())
     </script>
+
     <style>
         html {
             font-size: 10px;
@@ -116,13 +117,29 @@
             animation: changDeg 2s linear 0.2s infinite;
         }
 
-        .times {
+        .user {
             position: fixed;
             left: 1rem;
-            top: 48vh;
+            top: 40vh;
             z-index: 100;
-            /* width: 3rem; */
-            padding: .5rem 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .times {
+            width: 10rem;
+            padding: .5rem;
+            border-radius: 5px;
+            box-shadow: 0 white;
+            border: none;
+            background-color: rgb(253, 194, 0);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .userMusicList {
+            width: 10rem;
+            padding: .5rem;
             border-radius: 5px;
             box-shadow: 0 white;
             border: none;
@@ -134,7 +151,10 @@
 
 <body>
     <div id="pages">
-        <button class="times" @click="time==60?time=25:time=60">番茄时间:<br>{{time}}min</button>
+        <div class="user">
+            <button class="times" @click="time==60?time=25:time=60">番茄时间:<br>{{time}}min</button>
+            <button class="userMusicList" @click="getuserMusicList">修改歌单只支持网易云歌单</button>
+        </div>
         <!-- musicList[music] https://www.runoob.com/try/demo_source/horse.mp3-->
         <audio id="audio" :src="musicList[music]"></audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
@@ -171,17 +191,29 @@
                 clientHeight: document.body.clientHeight,
                 angle: 0,
                 musicList: [],
-                time: 25
+                time: 25,
+                userMusicList: '4942238911'
             },
-            created() {},
-            mounted() {
+            created() {
                 this.getMusicList()
             },
+            mounted() {},
             computed: {},
             methods: {
                 // https: //bird.ioliu.cn/netease/song?id=222222
                 // https://music.163.com/#/playlist?id=4942238911
                 // https://bird.ioliu.cn/netease/playlist?id=4942238911
+                getuserMusicList() {
+                    this.getMusicList()
+                    this.userMusicList = prompt("请输入预设歌单:",
+                        "");
+                    if (this.userMusicList != null) {
+                        alert("设置成功");
+                    }
+                    this.userMusicList = this.userMusicList.match(/id=[0-9]+/)[0].replace("id=", "");
+                    // http://music.163.com/playlist?id=4945892612&userid=532094284
+                    this.getMusicList()
+                },
                 isPlay() {
                     let audio = document.querySelector("#audio"),
                         _this = this
@@ -200,7 +232,7 @@
                 getMusicList() {
                     let _this = this
                     axios
-                        .get('https://bird.ioliu.cn/netease/playlist?id=4942238911')
+                        .get('https://bird.ioliu.cn/netease/playlist?id=' + _this.userMusicList)
                         .then(response => {
                             let list = []
                             response.data.playlist['trackIds'].filter(e => {
