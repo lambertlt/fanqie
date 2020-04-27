@@ -56,7 +56,7 @@
             z-index: 10;
         }
 
-        #pages button {
+        #pages .button {
             width: calc(100vw / 2.5);
             height: calc(100vw / 2.5);
             border-radius: 50%;
@@ -115,15 +115,30 @@
         .rotate {
             animation: changDeg 2s linear 0.2s infinite;
         }
+
+        .times {
+            position: fixed;
+            left: 1rem;
+            top: 48vh;
+            z-index: 100;
+            /* width: 3rem; */
+            padding: .5rem 1rem;
+            border-radius: 5px;
+            box-shadow: 0 white;
+            border: none;
+            background-color: rgb(253, 194, 0);
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
     <div id="pages">
+        <button class="times" @click="time==60?time=25:time=60">番茄时间:<br>{{time}}min</button>
         <!-- musicList[music] https://www.runoob.com/try/demo_source/horse.mp3-->
         <audio id="audio" :src="musicList[music]"></audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
-        <button @click=button>
+        <button class="button" @click="button">
             <div class="music">
                 <div class="musicL" @click.stop="music--">-</div>
                 <div class="musicC" :class={rotate:isMusic} @click.stop="isPlay">♬</div>
@@ -155,7 +170,8 @@
                 clientWidth: document.body.clientWidth,
                 clientHeight: document.body.clientHeight,
                 angle: 0,
-                musicList: []
+                musicList: [],
+                time: 25
             },
             created() {},
             mounted() {
@@ -214,8 +230,7 @@
                     ctx.translate(_this.clientWidth / 2, _this.clientHeight / 2)
                     ctx.rotate(-90 * Math.PI / 180);
                     ctx.moveTo(0, 0)
-                    ctx.arc(0, 0, _this.clientWidth >= _this.clientHeight ? _this.clientWidth :
-                        _this
+                    ctx.arc(0, 0, _this.clientWidth >= _this.clientHeight ? _this.clientWidth : _this
                         .clientHeight, 0, _this.angle * Math.PI / 180)
                     ctx.fill() // 填充绘制路径 默认黑色
                     // ctx.stroke(); // 绘制已定义路径
@@ -243,7 +258,8 @@
                         _this.content = '暂停'
                         t = setInterval(function () {
                             _this.second++;
-                            _this.angle = parseFloat((_this.angle + 0.1).toFixed(1));
+                            _this.angle = parseFloat(360 / (_this.time * 60) + _this.angle)
+                            console.log()
                             _this.canvas()
                             if (_this.second >= 60) {
                                 _this.minute++;
