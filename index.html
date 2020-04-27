@@ -8,8 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
-        (function() {
-            document.addEventListener('visibilitychange', function() { //浏览器切换事件
+        (function () {
+            document.addEventListener('visibilitychange', function () { //浏览器切换事件
                 if (document.visibilityState == 'hidden') { //状态判断
                     //normal_title=document.title;
                     document.title = '你去干嘛了?';
@@ -19,9 +19,9 @@
                     document.title = '欢迎回来!';
                     // document.getElementById('icon').target = "_blank"
                     // href = '../images/icon.png'; //需要修改的图片路径
-                    setTimeout(function() {
-                            document.title = '番茄时光';
-                        }, 2000) //计时器
+                    setTimeout(function () {
+                        document.title = '番茄时光';
+                    }, 2000) //计时器
                 }
             })
         }())
@@ -30,17 +30,17 @@
         html {
             font-size: 10px;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             outline: none;
         }
-        
+
         a {
             color: black;
         }
-        
+
         #pages {
             width: 100%;
             height: 100vh;
@@ -50,12 +50,12 @@
             position: relative;
             background-image: linear-gradient(25deg, #4ca8f9, #9db6e6, #d1c4d3, #fcd3bf);
         }
-        
+
         #can1 {
             position: absolute;
             z-index: 10;
         }
-        
+
         #pages button {
             width: calc(100vw / 2.5);
             height: calc(100vw / 2.5);
@@ -72,18 +72,18 @@
             position: absolute;
             z-index: 100;
         }
-        
+
         .time {
             color: black;
             display: flex;
         }
-        
+
         .over {
             position: absolute;
             bottom: .6rem;
             padding: 0 1rem 0 1rem;
         }
-        
+
         .music {
             display: flex;
             justify-content: space-around;
@@ -91,34 +91,43 @@
             padding: 0 0.6rem 0.6rem 0.6rem;
             width: 100%;
         }
-        
+
         .musicL {
             margin-right: 20px;
         }
-        
+
         .musicR {
             margin-left: 20px;
         }
+
         /*无限旋转动画*/
-        
+
         @keyframes changDeg {
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
         }
-        
+
         .rotate {
             animation: changDeg 2s linear 0.2s infinite;
+        }
+
+        #audio {
+            z-index: 1000;
+            position: relative;
+            top: 100px;
         }
     </style>
 </head>
 
 <body>
     <div id="pages">
-        <audio id="audio" :src="musicList[music]">Your browser does not support the audio element.</audio>
+        <!-- musicList[music] https://www.runoob.com/try/demo_source/horse.mp3-->
+        <audio id="audio" :src="musicList[music]" controls></audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
         <button @click=button>
             <div class="music">
@@ -163,22 +172,20 @@
                 // https: //bird.ioliu.cn/netease/song?id=222222
                 // https://music.163.com/#/playlist?id=4942238911
                 // https://bird.ioliu.cn/netease/playlist?id=4942238911
-                musicL() {
-                    let audio = document.querySelector("#audio")
-
-                },
-                musicR() {},
                 isPlay() {
-                    let audio = document.querySelector("#audio")
+                    let audio = document.querySelector("#audio"),
+                        _this = this
                     this.isMusic = !this.isMusic
-                    if (this.isMusic) {
+                    if (audio.paused) {
                         audio.play()
-                        audio.onended = function() {
-                            this.music++
-                                audio.play()
+                        audio.onended = function () {
+                            _this.music++
+                            // _this.isMusic = !_this.isMusic
+                            // audio.play()
                         }
                     } else
                         audio.pause()
+                    audio.setAttribute("autoplay", "")
                 },
                 getMusicList() {
                     let _this = this
@@ -196,7 +203,7 @@
                             })
                             _this.musicList = list
                         })
-                        .catch(function(error) { // 请求失败处理
+                        .catch(function (error) { // 请求失败处理
                             console.log(error);
                         })
                 },
@@ -217,7 +224,7 @@
                         _this
                         .clientHeight, 0, _this.angle * Math.PI / 180)
                     ctx.fill() // 填充绘制路径 默认黑色
-                        // ctx.stroke(); // 绘制已定义路径
+                    // ctx.stroke(); // 绘制已定义路径
                 },
                 remove() {
                     this.isClick = 0
@@ -231,13 +238,16 @@
                     this.angle = 0
                     clearInterval(t)
                     this.clearCanvas()
+                    document.querySelector("#audio").pause()
+                    document.querySelector("#audio").currentTime = 0
+                    this.isMusic = !this.isMusic
                 },
                 button() {
                     let _this = this
                     this.isClick = !this.isClick
                     if (_this.isClick) {
                         _this.content = '暂停'
-                        t = setInterval(function() {
+                        t = setInterval(function () {
                             _this.second++;
                             _this.angle = parseFloat((_this.angle + 0.1).toFixed(1));
                             _this.canvas()
