@@ -27,6 +27,10 @@
         }())
     </script>
     <style>
+        html {
+            font-size: 10px;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -167,9 +171,13 @@
                 isPlay() {
                     let audio = document.querySelector("#audio")
                     this.isMusic = !this.isMusic
-                    if (this.isMusic)
+                    if (this.isMusic) {
                         audio.play()
-                    else
+                        audio.onended = function() {
+                            this.music++
+                                audio.play()
+                        }
+                    } else
                         audio.pause()
                 },
                 getMusicList() {
