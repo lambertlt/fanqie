@@ -115,19 +115,13 @@
         .rotate {
             animation: changDeg 2s linear 0.2s infinite;
         }
-
-        #audio {
-            z-index: 1000;
-            position: relative;
-            top: 100px;
-        }
     </style>
 </head>
 
 <body>
     <div id="pages">
         <!-- musicList[music] https://www.runoob.com/try/demo_source/horse.mp3-->
-        <audio id="audio" :src="musicList[music]" controls></audio>
+        <audio id="audio" :src="musicList[music]"></audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
         <button @click=button>
             <div class="music">
