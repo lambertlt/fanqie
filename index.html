@@ -57,45 +57,6 @@
             z-index: 10;
         }
 
-        #pages .button {
-            width: calc(100vw / 8);
-            height: calc(100vw / 8);
-            border-radius: 50%;
-            box-shadow: 0 0 10px #000000;
-            border: none;
-            background-color: white;
-            color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            font-size: 2rem;
-            position: absolute;
-            z-index: 100;
-        }
-
-        .buttonBox {
-            width: calc(100vw / 2.5);
-            height: calc(100vw / 2.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .time {
-            color: black;
-            display: flex;
-        }
-
-        .over {
-            position: absolute;
-            bottom: -3.6rem;
-            padding: 0 1rem 0 1rem;
-            font-size: 2rem;
-        }
-
         .music {
             display: flex;
             justify-content: center;
@@ -103,14 +64,16 @@
             width: 100%;
         }
 
+        .music div {
+            padding: .4rem 1rem;
+        }
+
         .musicL {
             margin-right: 1rem;
-            padding: .4rem;
         }
 
         .musicR {
             margin-left: 1rem;
-            padding: .4rem;
         }
 
         /*无限旋转动画*/
@@ -129,89 +92,68 @@
             animation: changDeg 6s linear 0.2s infinite;
         }
 
-        .user {
-            position: fixed;
-            left: 1rem;
-            top: 40vh;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-        }
 
-        .times {
-            width: 10rem;
-            padding: .5rem;
-            border-radius: 5px;
-            box-shadow: 0 white;
-            border: none;
-            background-color: rgb(253, 194, 0);
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .userMusicList {
-            width: 10rem;
-            padding: .5rem;
-            border-radius: 5px;
-            box-shadow: 0 white;
-            border: none;
-            background-color: rgb(253, 194, 0);
-            text-align: center;
-        }
 
         .musicImg {
-            width: calc(100vw / 2.5);
-            height: calc(100vw / 2.5);
+            width: 22rem;
+            height: 22rem;
             display: block;
             border-radius: 50%;
             position: absolute;
             z-index: 99;
         }
 
-        .imgBox {
-            position: relative;
-            margin-top: .5rem;
+        .controlText {
             width: 10rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             color: black;
             font-size: 1.2rem;
+            text-align: center;
             overflow: hidden;
+            line-height: 3rem;
+        }
+
+        .control {
+            position: absolute;
+            bottom: 6rem;
+            z-index: 90;
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .controlBg {
+            width: 10rem;
+            height: auto;
+            padding: .5rem;
+            border-radius: 5px;
+            background-color: rgb(253, 194, 0);
+            text-align: center;
+            margin-bottom: .4rem;
         }
     </style>
 </head>
 
 <body>
     <div id="pages">
-        <div class="user">
-            <button class="times" @click="time==60?time=25:time=60">番茄时间:<br>{{time}}min</button>
-            <button class="userMusicList"
-                @click="userSelectList==0?userSelectList++:userSelectList--;getMusicList();music=0;isMusic=1;">{{userSelectList?"动感":"白噪音"}}</button>
-            <div class="imgBox" @click.stop="isPlay">{{musicList[music].name}}</div>
+        <div class="control">
+            <div class="controlBg" @click="time==60?time=25:time=60">番茄时间:<br>{{time}}min</div>
+            <div class="controlBg">{{minute}}:{{second}}</div>
+            <div class="controlBg" @click.stop="remove">结束计时</div>
+            <div class="controlBg"
+                @click="userSelectList==0?userSelectList++:userSelectList--;getMusicList();music=0;isMusic=1;">
+                {{userSelectList?"动感":"白噪音"}}</div>
+            <div class="controlBg" v-if="musicList[music]" @click.stop="isPlay">{{musicList[music].name}}</div>
+            <div class="music controlBg">
+                <div class="musicL" @click.stop="music--;isMusic=1;">-</div>
+                <div class="musicC" :class={rotate:isMusic} @click.stop="isPlay">♬</div>
+                <div class="musicR" @click.stop="music++;isMusic=1;">+</div>
+            </div>
         </div>
         <!-- musicList[music] https://www.runoob.com/try/demo_source/horse.mp3-->
-        <audio v-if="musicList[music].mp3" id="audio" :src="musicList[music].mp3"></audio>
+        <audio id="audio" v-if="musicList[music]" :src="musicList[music].mp3"></audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
-        <div class="buttonBox" @click.stop="button">
-            <img class="musicImg" :class={rotate:isMusic} :src="musicList[music].picUrl" alt="" />
-            <div class="button">
-                <div class="music">
-                    <div class="musicL" @click.stop="music--">-</div>
-                    <div class="musicC" :class={rotate:isMusic} @click.stop="isPlay">♬</div>
-                    <div class="musicR" @click.stop="music++">+</div>
-                </div>
-                <div class="time">
-                    <!-- <div>{{hour}}:</div> -->
-                    <div>{{minute}}:</div>
-                    <div>{{second}}</div>
-                </div>
-                {{content}}
-            </div>
-            <div class="over" @click.stop="remove">
-                ╳
-            </div>
-        </div>
+        <img v-if="musicList[music]" class="musicImg" @click.stop="button" :class={rotate:isMusic} :src="musicList[music].picUrl" alt="" />
     </div>
     <script type="text/javascript">
         var t
