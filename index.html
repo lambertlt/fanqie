@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
     <title>番茄时光</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -143,7 +143,9 @@
             <div class="controlBg"
                 @click="userSelectList==0?userSelectList++:userSelectList--;getMusicList();music=0;isMusic=0;">
                 {{userSelectList?"动感":"白噪音"}}</div>
-            <div class="controlBg" v-if="musicList[music]" @click.stop="isPlay">{{musicList[music].name}}</div>
+            <div class="controlBg" @click.stop="isPlay">
+                <template v-if="musicList[music]">{{musicList[music].name}}</template>
+            </div>
             <div class="music controlBg">
                 <div class="musicL" @click.stop="music--;isMusic=1;">-</div>
                 <div class="musicC" :class={rotate:isMusic} @click.stop="isPlay">♬</div>
@@ -153,7 +155,8 @@
         <!-- musicList[music] https://www.runoob.com/try/demo_source/horse.mp3-->
         <audio id="audio" v-if="musicList[music]" :src="musicList[music].mp3"></audio>
         <canvas id="can1" :width="clientWidth" :height=clientHeight></canvas>
-        <img v-if="musicList[music]" class="musicImg" @click.stop="button" :class={rotate:isMusic} :src="musicList[music].picUrl" alt="" />
+        <img v-if="musicList[music]" class="musicImg" @click.stop="button" :class={rotate:isMusic}
+            :src="musicList[music].picUrl" alt="" />
     </div>
     <script type="text/javascript">
         var t
