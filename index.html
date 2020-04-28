@@ -141,7 +141,7 @@
             <div class="controlBg">{{minute}}:{{second}}</div>
             <div class="controlBg" @click.stop="remove">结束计时</div>
             <div class="controlBg"
-                @click="userSelectList==0?userSelectList++:userSelectList--;getMusicList();music=0;isMusic=1;">
+                @click="userSelectList==0?userSelectList++:userSelectList--;getMusicList();music=0;isMusic=0;">
                 {{userSelectList?"动感":"白噪音"}}</div>
             <div class="controlBg" v-if="musicList[music]" @click.stop="isPlay">{{musicList[music].name}}</div>
             <div class="music controlBg">
